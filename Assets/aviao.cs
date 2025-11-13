@@ -51,6 +51,7 @@ public class aviao : MonoBehaviour
         }
     }
 
+    private void salto()
     {
         if (Input.GetKey(KeyCode.Space))
         {
@@ -88,7 +89,7 @@ public class aviao : MonoBehaviour
         }
     }
 
-    // --- FUNï¿½ï¿½O DO FUNDO INFINITO ---
+    // --- FUNÇÃO DO FUNDO INFINITO ---
     private void fundoInfinito()
     {
         if (fundos.Length < 2) return;
