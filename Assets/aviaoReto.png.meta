@@ -212,7 +212,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      aviaoReto_0: 3252572184399234772
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

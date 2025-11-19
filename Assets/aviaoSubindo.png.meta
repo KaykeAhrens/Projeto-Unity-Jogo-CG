@@ -212,7 +212,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      aviaoSubindo_0: 299253578690728505
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

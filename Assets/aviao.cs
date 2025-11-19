@@ -1,10 +1,10 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using System.Collections;
 
 public class aviao : MonoBehaviour
 {
-    public float speed = 0.01f;
+    public float speed = 0.1f;
     public float speedUp = 3f;
     private Rigidbody2D rb;
     public int coins = 0;
@@ -12,45 +12,45 @@ public class aviao : MonoBehaviour
     public Sprite[] sprites;
     private SpriteRenderer sr;
     public Camera cam;
-
-    // --- Fundo infinito ---
+    public int vidas = 3;
+    public TextMeshProUGUI vidasText;
+    
     [Header("Fundo infinito")]
     public Transform[] fundos;  
     private float larguraFundo;   
-    private int proximoFundo = 0; 
-
+    private int proximoFundo = 0;
+    
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
-
-        // Calcula a largura do sprite do fundo automaticamente
+        vidasText.text = "Vidas: " + vidas;
+        
         if (fundos.Length > 0)
             larguraFundo = fundos[0].GetComponent<SpriteRenderer>().bounds.size.x;
     }
-
+    
     void Update()
     {
         movimentacao();
         salto();
         camera();
         fundoInfinito();
-        transform.position += Vector3.right * speed;
+        transform.position += Vector3.right * speed * 3f;
     }
-
+    
     private void camera()
     {
         if (transform.position.x < cam.transform.position.x - 3.38)
         {
             transform.position = new Vector2(cam.transform.position.x - 3.38f, transform.position.y);
         }
-
         if (transform.position.x > cam.transform.position.x)
         {
             cam.transform.position = new Vector3(transform.position.x, cam.transform.position.y, cam.transform.position.z);
         }
     }
-
+    
     private void salto()
     {
         if (Input.GetKey(KeyCode.Space))
@@ -58,7 +58,7 @@ public class aviao : MonoBehaviour
             rb.AddForce(Vector2.up * speedUp);
         }
     }
-
+    
     private void movimentacao()
     {
         if (Input.GetKey(KeyCode.A))
@@ -88,23 +88,53 @@ public class aviao : MonoBehaviour
             sr.sprite = sprites[1];
         }
     }
-
-    // --- FUNÇÃO DO FUNDO INFINITO ---
+    
     private void fundoInfinito()
     {
         if (fundos.Length < 2) return;
-
-        // Se acabou o fundo
+        
         if (transform.position.x > fundos[proximoFundo].position.x + larguraFundo)
         {
             int fundoAtras = proximoFundo;
             proximoFundo = (proximoFundo + 1) % fundos.Length;
-
             fundos[fundoAtras].position = new Vector3(
                 fundos[proximoFundo].position.x + larguraFundo,
                 fundos[fundoAtras].position.y,
                 fundos[fundoAtras].position.z
             );
+        }
+    }
+    
+    public GameOverManager gameOverManager;
+    
+    public void PerderVida()
+    {
+        vidas--;
+        vidasText.text = "Vidas: " + vidas;
+        if (vidas <= 0)
+        {
+            Debug.Log("GAME OVER");
+            gameOverManager.MostrarGameOver();
+            gameObject.SetActive(false);
+        }
+    }
+    
+    public void PiscarAviao()
+    {
+        StartCoroutine(Piscar());
+    }
+    
+    private IEnumerator Piscar()
+    {
+        Color corOriginal = sr.color;
+        
+        for (int i = 0; i < 3; i++)
+        {
+            sr.color = Color.red;
+            yield return new WaitForSeconds(0.1f);
+            
+            sr.color = corOriginal;
+            yield return new WaitForSeconds(0.1f);
         }
     }
 }
