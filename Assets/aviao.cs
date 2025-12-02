@@ -15,6 +15,10 @@ public class aviao : MonoBehaviour
     public int vidas = 3;
     public TextMeshProUGUI vidasText;
     
+    [Header("Limites Verticais")]
+    public float limiteInferior = -5.5f;  // Não pode descer mais que isso
+    public float limiteSuperior = 4.5f; // Não pode subir mais que isso
+    
     [Header("Fundo infinito")]
     public Transform[] fundos;  
     private float larguraFundo;   
@@ -36,7 +40,32 @@ public class aviao : MonoBehaviour
         salto();
         camera();
         fundoInfinito();
+        LimitarPosicao(); // NOVA FUNÇÃO!
         transform.position += Vector3.right * speed * 3f;
+    }
+    
+    private void LimitarPosicao()
+    {
+        // Pega a posição atual
+        Vector3 pos = transform.position;
+        
+        // Limita o Y (altura)
+        pos.y = Mathf.Clamp(pos.y, limiteInferior, limiteSuperior);
+        
+        // Aplica a posição limitada
+        transform.position = pos;
+        
+        // Se bateu no limite superior, zera a velocidade vertical do Rigidbody
+        if (pos.y >= limiteSuperior && rb.linearVelocity.y > 0)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
+        }
+        
+        // Se bateu no limite inferior, zera a velocidade vertical do Rigidbody
+        if (pos.y <= limiteInferior && rb.linearVelocity.y < 0)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
+        }
     }
     
     private void camera()

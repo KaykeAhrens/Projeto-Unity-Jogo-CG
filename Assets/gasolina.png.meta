@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: e6dfa4da33c7b46a1b6cdb19a6bab441
+guid: b5f9cca3b98907b4d9c90571c2865d07
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7601432352173340745
-    second: bicho_0
-  - first:
-      213: 2437935813664126252
-    second: bicho_1
+      213: 8454371598550265505
+    second: gasolina_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -103,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: bicho_0
+      name: gasolina_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 558
-        height: 327
+        x: 95
+        y: 39
+        width: 322
+        height: 434
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -118,30 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 948347f3376bd7960800000000000000
-      internalID: 7601432352173340745
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: bicho_1
-      rect:
-        serializedVersion: 2
-        x: 601
-        y: 49
-        width: 7
-        height: 13
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c2537aea4b945d120800000000000000
-      internalID: 2437935813664126252
+      spriteID: 1ae6dbafc26f35570800000000000000
+      internalID: 8454371598550265505
       vertices: []
       indices: 
       edges: []
@@ -159,9 +134,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      bicho_0: 7601432352173340745
-      bicho_1: 2437935813664126252
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
