@@ -8,19 +8,19 @@ public class BichoSpawner : MonoBehaviour
     
     [Header("Configurações de Spawn")]
     public float distanceAhead = 12f;
-    public float minSpawnTime = 2f;  // Mais rápido agora!
-    public float maxSpawnTime = 5f;  // Mais rápido agora!
+    public float minSpawnTime = 2f;
+    public float maxSpawnTime = 5f;
     public float minY = 0.5f;
     public float maxY = 4f;
     
     [Header("Múltiplos Pássaros")]
-    public int minPassaros = 1;      // Mínimo de pássaros por vez
-    public int maxPassaros = 4;      // Máximo de pássaros por vez
-    public float espacamentoEntrePassaros = 1.5f; // Distância entre eles
+    public int minPassaros = 1;
+    public int maxPassaros = 4;
+    public float espacamentoEntrePassaros = 1.5f;
     
     [Header("Movimento Circular")]
     [Range(0f, 1f)]
-    public float chanceMovimentoCircular = 0.3f; // 30% de chance de circular
+    public float chanceMovimentoCircular = 0.3f;
     
     private float nextSpawnTime = 0f;
     
@@ -43,15 +43,11 @@ public class BichoSpawner : MonoBehaviour
     
     void SpawnarGrupoDePassaros()
     {
-        // Decide quantos pássaros vão aparecer desta vez
         int quantidadePassaros = Random.Range(minPassaros, maxPassaros + 1);
         
         for (int i = 0; i < quantidadePassaros; i++)
         {
-            // Posição Y aleatória para cada pássaro
             float y = Random.Range(minY, maxY);
-            
-            // Espaça os pássaros horizontalmente
             float offsetX = i * espacamentoEntrePassaros;
             
             Vector3 spawnPos = new Vector3(
@@ -62,12 +58,10 @@ public class BichoSpawner : MonoBehaviour
             
             GameObject b = Instantiate(bichoPrefab, spawnPos, Quaternion.identity);
             
-            // Decide se este pássaro vai ter movimento circular
             bool vaiSerCircular = Random.value < chanceMovimentoCircular;
             
             if (vaiSerCircular)
             {
-                // Adiciona movimento CIRCULAR
                 bichoMovementCircular bmc = b.AddComponent<bichoMovementCircular>();
                 bmc.speed = Random.Range(1.5f, 2.5f);
                 bmc.raioCirculo = Random.Range(1f, 2f);
@@ -76,7 +70,6 @@ public class BichoSpawner : MonoBehaviour
             }
             else
             {
-                // Adiciona movimento RETO normal
                 bichoMovement bm = b.AddComponent<bichoMovement>();
                 bm.speed = Random.Range(1.5f, 3f);
                 bm.airplane = airplane;
@@ -85,7 +78,6 @@ public class BichoSpawner : MonoBehaviour
     }
 }
 
-// ========== MOVIMENTO RETO (O ANTIGO) ==========
 public class bichoMovement : MonoBehaviour
 {
     public float speed = 2f;
@@ -93,10 +85,9 @@ public class bichoMovement : MonoBehaviour
     
     void Update()
     {
-        // Move para a esquerda
+        // CORRIGIDO: Usa Time.deltaTime para independência de framerate
         transform.position += Vector3.left * speed * Time.deltaTime;
         
-        // Destrói quando passa do avião
         if (airplane != null && transform.position.x < airplane.position.x - 10f)
         {
             Destroy(gameObject);
@@ -118,12 +109,11 @@ public class bichoMovement : MonoBehaviour
     }
 }
 
-// ========== MOVIMENTO CIRCULAR (NOVO!) ==========
 public class bichoMovementCircular : MonoBehaviour
 {
-    public float speed = 2f;           // Velocidade para a esquerda
-    public float raioCirculo = 1.5f;   // Tamanho do círculo
-    public float velocidadeCirculo = 3f; // Velocidade da rotação
+    public float speed = 2f;
+    public float raioCirculo = 1.5f;
+    public float velocidadeCirculo = 3f;
     public Transform airplane;
     
     private Vector3 posicaoInicial;
@@ -136,21 +126,17 @@ public class bichoMovementCircular : MonoBehaviour
     
     void Update()
     {
-        // Move para a esquerda
+        // CORRIGIDO: Usa Time.deltaTime
         posicaoInicial += Vector3.left * speed * Time.deltaTime;
         
-        // Faz o movimento circular
         angulo += velocidadeCirculo * Time.deltaTime;
         
         float x = posicaoInicial.x + Mathf.Cos(angulo) * raioCirculo;
         float y = posicaoInicial.y + Mathf.Sin(angulo) * raioCirculo;
         
         transform.position = new Vector3(x, y, 0);
-        
-        // Rotaciona o sprite para parecer que está voando em círculo
         transform.rotation = Quaternion.Euler(0, 0, angulo * Mathf.Rad2Deg);
         
-        // Destrói quando passa do avião
         if (airplane != null && transform.position.x < airplane.position.x - 10f)
         {
             Destroy(gameObject);

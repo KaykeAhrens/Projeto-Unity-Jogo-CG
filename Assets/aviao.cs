@@ -4,8 +4,12 @@ using System.Collections;
 
 public class aviao : MonoBehaviour
 {
-    public float speed = 0.1f;
-    public float speedUp = 3f;
+    [Header("Velocidades (unidades por segundo)")]
+    public float speed = 5f;  // Velocidade base horizontal
+    public float speedBoost = 25f;  // Velocidade ao apertar D
+    public float speedVertical = 5f;  // Velocidade vertical (W/S)
+    public float forcaPulo = 300f;  // Força do pulo (Space)
+    
     private Rigidbody2D rb;
     public int coins = 0;
     public TextMeshProUGUI coinsText;
@@ -16,8 +20,8 @@ public class aviao : MonoBehaviour
     public TextMeshProUGUI vidasText;
     
     [Header("Limites Verticais")]
-    public float limiteInferior = -5.5f;  // Não pode descer mais que isso
-    public float limiteSuperior = 4.5f; // Não pode subir mais que isso
+    public float limiteInferior = -5.5f;
+    public float limiteSuperior = 4.5f;
     
     [Header("Fundo infinito")]
     public Transform[] fundos;  
@@ -32,6 +36,8 @@ public class aviao : MonoBehaviour
         
         if (fundos.Length > 0)
             larguraFundo = fundos[0].GetComponent<SpriteRenderer>().bounds.size.x;
+        
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
     }
     
     void Update()
@@ -40,28 +46,20 @@ public class aviao : MonoBehaviour
         salto();
         camera();
         fundoInfinito();
-        LimitarPosicao(); // NOVA FUNÇÃO!
-        transform.position += Vector3.right * speed * 3f;
+        LimitarPosicao();
     }
     
     private void LimitarPosicao()
     {
-        // Pega a posição atual
         Vector3 pos = transform.position;
-        
-        // Limita o Y (altura)
         pos.y = Mathf.Clamp(pos.y, limiteInferior, limiteSuperior);
-        
-        // Aplica a posição limitada
         transform.position = pos;
         
-        // Se bateu no limite superior, zera a velocidade vertical do Rigidbody
         if (pos.y >= limiteSuperior && rb.linearVelocity.y > 0)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
         }
         
-        // Se bateu no limite inferior, zera a velocidade vertical do Rigidbody
         if (pos.y <= limiteInferior && rb.linearVelocity.y < 0)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
@@ -84,36 +82,48 @@ public class aviao : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.Space))
         {
-            rb.AddForce(Vector2.up * speedUp);
+            rb.AddForce(Vector2.up * forcaPulo * Time.deltaTime);
         }
     }
     
     private void movimentacao()
     {
-        if (Input.GetKey(KeyCode.A))
-        {
-            transform.position += Vector3.left * speed;
-            sr.flipX = false;
-            sr.sprite = sprites[0];
-        }
+        // ========== MOVIMENTO HORIZONTAL ==========
+        // SEMPRE se move para direita (velocidade base)
+        float velocidadeAtual = speed;
+        
+        // Se apertar D, usa velocidade BOOST
         if (Input.GetKey(KeyCode.D))
         {
-            transform.position += Vector3.right * (speed * 5);
+            velocidadeAtual = speedBoost;
             sr.flipX = true;
             sr.sprite = sprites[0];
         }
+        // // Se apertar A, pode andar para trás (ou cancelar o movimento)
+        // else if (Input.GetKey(KeyCode.A))
+        // {
+        //     velocidadeAtual = -speed; // Negativo = para trás
+        //     sr.flipX = false;
+        //     sr.sprite = sprites[0];
+        // }
+        
+        // Aplica o movimento horizontal
+        transform.position += Vector3.right * velocidadeAtual * Time.deltaTime;
+        
         if (Input.GetKeyUp(KeyCode.D) || Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.Space))
         {
             sr.sprite = sprites[0];
         }
+        
+        // ========== MOVIMENTO VERTICAL ==========
         if (Input.GetKey(KeyCode.W))
         {
-            transform.position += Vector3.up * speed;
+            transform.position += Vector3.up * speedVertical * Time.deltaTime;
             sr.sprite = sprites[2];
         }
         if (Input.GetKey(KeyCode.S))
         {
-            transform.position += Vector3.down * speed;
+            transform.position += Vector3.down * speedVertical * Time.deltaTime;
             sr.sprite = sprites[1];
         }
     }
@@ -143,7 +153,10 @@ public class aviao : MonoBehaviour
         if (vidas <= 0)
         {
             Debug.Log("GAME OVER");
-            gameOverManager.MostrarGameOver();
+            if (gameOverManager != null)
+            {
+                gameOverManager.MostrarGameOver();
+            }
             gameObject.SetActive(false);
         }
     }
@@ -160,10 +173,10 @@ public class aviao : MonoBehaviour
         for (int i = 0; i < 3; i++)
         {
             sr.color = Color.red;
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSecondsRealtime(0.1f);
             
             sr.color = corOriginal;
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSecondsRealtime(0.1f);
         }
     }
 }

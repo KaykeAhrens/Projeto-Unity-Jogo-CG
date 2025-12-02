@@ -20,15 +20,15 @@ public class SistemaGasolina : MonoBehaviour
     [Header("Configurações de Gasolina")]
     public float gasolinaMaxima = 100f;
     public float gasolinaAtual = 100f;
-    public float gastoPorSegundo = 8f; // Gasta 8 por segundo = dura ~12 segundos
-    public float gastoExtraAoUsarD = 5f; // Gasta mais 5 quando aperta D
+    public float gastoPorSegundo = 8f;
+    public float gastoExtraAoUsarD = 5f;
     
     [Header("Configurações de Combustível")]
-    public float distanciaEntreCombustiveis = 25f; // Distância entre as latas
-    public float combustivelRecuperado = 60f; // Quanto recupera ao pegar
+    public float distanciaEntreCombustiveis = 25f;
+    public float combustivelRecuperado = 60f;
     public float minY = 0.5f;
     public float maxY = 4f;
-    public float distanciaAFrente = 15f; // Onde spawna na frente
+    public float distanciaAFrente = 15f;
     
     private float proximoCombustivelX = 0f;
     private bool jogoIniciado = false;
@@ -39,7 +39,6 @@ public class SistemaGasolina : MonoBehaviour
         
         if (airplane != null)
         {
-            // Spawna o primeiro combustível um pouco à frente
             proximoCombustivelX = airplane.position.x + distanciaAFrente;
             SpawnarCombustivel();
         }
@@ -51,8 +50,11 @@ public class SistemaGasolina : MonoBehaviour
     {
         if (!jogoIniciado || airplane == null) return;
         
+        // Usa Time.unscaledDeltaTime se o jogo pausar com timeScale
+        float deltaTime = Time.deltaTime;
+        
         // ========== CONSUMO DE GASOLINA ==========
-        Consumir();
+        Consumir(deltaTime);
         
         // ========== ATUALIZAR BARRA VISUAL ==========
         AtualizarBarraUI();
@@ -71,18 +73,17 @@ public class SistemaGasolina : MonoBehaviour
         }
     }
     
-    void Consumir()
+    void Consumir(float deltaTime)
     {
         // Gasto base constante
-        gasolinaAtual -= gastoPorSegundo * Time.deltaTime;
+        gasolinaAtual -= gastoPorSegundo * deltaTime;
         
         // Gasto extra quando aperta D
         if (Input.GetKey(KeyCode.D))
         {
-            gasolinaAtual -= gastoExtraAoUsarD * Time.deltaTime;
+            gasolinaAtual -= gastoExtraAoUsarD * deltaTime;
         }
         
-        // Não deixa ficar negativo
         gasolinaAtual = Mathf.Max(gasolinaAtual, 0);
     }
     
@@ -90,25 +91,20 @@ public class SistemaGasolina : MonoBehaviour
     {
         if (barraGasolina == null) return;
         
-        // Atualiza o tamanho da barra
         float percentual = gasolinaAtual / gasolinaMaxima;
         barraGasolina.fillAmount = percentual;
         
-        // Muda a cor de forma GRADUAL (verde → amarelo → vermelho)
         if (percentual > 0.5f)
         {
-            // De 100% até 50%: Verde → Amarelo
-            float t = (percentual - 0.5f) / 0.5f; // vai de 0 a 1
+            float t = (percentual - 0.5f) / 0.5f;
             barraGasolina.color = Color.Lerp(corMedia, corCheia, t);
         }
         else
         {
-            // De 50% até 0%: Amarelo → Vermelho
-            float t = percentual / 0.5f; // vai de 0 a 1
+            float t = percentual / 0.5f;
             barraGasolina.color = Color.Lerp(corBaixa, corMedia, t);
         }
         
-        // Atualiza o texto da porcentagem (se existir)
         if (textoPorcentagem != null)
         {
             int porcentagemInt = Mathf.RoundToInt(percentual * 100);
@@ -125,7 +121,6 @@ public class SistemaGasolina : MonoBehaviour
         
         GameObject c = Instantiate(combustivelPrefab, pos, Quaternion.identity);
         
-        // Adiciona o script de coleta
         CombustivelItem item = c.AddComponent<CombustivelItem>();
         item.sistemaGasolina = this;
         item.airplane = airplane;
@@ -135,7 +130,6 @@ public class SistemaGasolina : MonoBehaviour
     {
         gasolinaAtual += combustivelRecuperado;
         
-        // Não deixa passar do máximo
         if (gasolinaAtual > gasolinaMaxima)
             gasolinaAtual = gasolinaMaxima;
         
@@ -146,27 +140,27 @@ public class SistemaGasolina : MonoBehaviour
     {
         Debug.Log("💀 FICOU SEM GASOLINA!");
         
-        // Perde vida
         if (scriptAviao != null)
         {
             scriptAviao.PiscarAviao();
             scriptAviao.PerderVida();
         }
         
-        // Dá um pouco de gasolina de volta pra não ficar travado
-        gasolinaAtual = gasolinaMaxima * 0.4f; // Volta com 40%
+        gasolinaAtual = gasolinaMaxima * 0.4f;
     }
 }
 
-// ========== SCRIPT DO ITEM DE COMBUSTÍVEL ==========
 public class CombustivelItem : MonoBehaviour
 {
     public SistemaGasolina sistemaGasolina;
     public Transform airplane;
-    public float velocidadeRotacao = 100f; // Faz girar bonitinho
+    public float velocidadeRotacao = 100f;
     
     void Update()
     {
+        // Rotação visual
+        transform.Rotate(0, 0, velocidadeRotacao * Time.deltaTime);
+        
         // Destrói quando passa do avião
         if (airplane != null && transform.position.x < airplane.position.x - 15f)
         {
@@ -178,13 +172,11 @@ public class CombustivelItem : MonoBehaviour
     {
         if (collision.CompareTag("Player"))
         {
-            // Coleta o combustível
             if (sistemaGasolina != null)
             {
                 sistemaGasolina.ColetarCombustivel();
             }
             
-            // Destrói a lata
             Destroy(gameObject);
         }
     }
